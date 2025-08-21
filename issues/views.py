@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 
+from .models import *
 from django.db.models import Q
 
 def issue_list(request):
