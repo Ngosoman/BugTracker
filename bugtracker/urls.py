@@ -9,6 +9,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     
 
+
     
     # Issues URLs
     path('dashboard/', issues_views.dashboard, name='dashboard'),
