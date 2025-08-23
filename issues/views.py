@@ -5,7 +5,7 @@ from .models import Project, Issue
 
 @login_required
 def dashboard(request):
-    """Dashboard view - shows overview of projects and issues"""
+    """Dashboard view - shows overview"""
     user_projects = Project.objects.filter(created_by=request.user)
     user_issues = Issue.objects.filter(created_by=request.user)
     
@@ -20,7 +20,7 @@ def dashboard(request):
 
 @login_required
 def project_list(request):
-    """List all projects for the current user"""
+    """List all projects for current user"""
     projects = Project.objects.filter(created_by=request.user)
     return render(request, 'issues/project_list.html', {'projects': projects})
 
@@ -44,7 +44,7 @@ def project_create(request):
 
 @login_required
 def issue_list(request):
-    """List all issues for the current user"""
+    """List all issues for current user"""
     issues = Issue.objects.filter(created_by=request.user)
     return render(request, 'issues/issue_list.html', {'issues': issues})
 

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-folder"></i> My Projects</h2>
+    <a href="{% url 'issues:project_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> New Project
+    </a>
+</div>
+
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ project.name }}</h5>
+                <p class="card-text">{{ project.description|truncatewords:20 }}</p>
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">Created: {{ project.created_at|date:"M d, Y" }}</small>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View Issues</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h4>No projects yet!</h4>
+            <p>Create your first project to start tracking issues.</p>
+            <a href="{% url 'issues:project_create' %}" class="btn btn-primary">Create First Project</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
