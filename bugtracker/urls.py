@@ -13,6 +13,7 @@ urlpatterns = [
 
 
 
+
     
     # Issues URLs
     path('dashboard/', issues_views.dashboard, name='dashboard'),
