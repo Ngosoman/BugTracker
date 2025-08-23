@@ -21,6 +21,5 @@ urlpatterns = [
 
 
 
-
     path('signup/', accounts_views.signup, name='signup'),
 ]
