@@ -14,7 +14,7 @@ urlpatterns = [
 
 
 
-    
+
     # Issues URLs
     path('dashboard/', issues_views.dashboard, name='dashboard'),
     path('projects/', issues_views.project_list, name='project_list'),
