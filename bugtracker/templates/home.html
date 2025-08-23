@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="py-5">
+            <h1 class="display-4">
+                <i class="bi bi-bug-fill text-primary"></i><br>
+                Welcome to BugTrack
+            </h1>
+            <p class="lead">Simple, powerful bug tracking for development teams</p>
+            
+            {% if not user.is_authenticated %}
+            <div class="mt-4">
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-3">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </a>
+                <a href="{% url 'signup' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-person-plus"></i> Sign Up
+                </a>
+            </div>
+            {% else %}
+            <div class="mt-4">
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-speedometer2"></i> Go to Dashboard
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="bi bi-list-task display-4 text-primary"></i>
+                        <h3>Issue Tracking</h3>
+                        <p>Track bugs and issues efficiently</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="bi bi-people display-4 text-success"></i>
+                        <h3>Team Collaboration</h3>
+                        <p>Work together with your team</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="bi bi-graph-up display-4 text-warning"></i>
+                        <h3>Progress Tracking</h3>
+                        <p>Monitor your project progress</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
