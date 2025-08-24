@@ -73,3 +73,23 @@ def issue_create(request):
             return redirect('issue_list')
     
     return render(request, 'issues/issue_create.html', {'projects': projects})
+
+@login_required
+def project_create(request):
+    """Create a new project"""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        
+        if name:
+            project = Project.objects.create(
+                name=name,
+                description=description,
+                created_by=request.user
+            )
+            messages.success(request, f'Project "{project.name}" created successfully!')
+            return redirect('project_list')
+        else:
+            messages.error(request, 'Project name is required!')
+    
+    return render(request, 'issues/project_create.html')
