@@ -44,14 +44,31 @@
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{% url 'issue_list' %}" class="btn btn-secondary me-md-2">
-                            <i class="bi bi-arrow-left"></i> Cancel
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
                         </a>
                         <button type="submit" class="btn btn-info">
                             <i class="bi bi-search"></i> Analyze Code
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+        
+        <!-- Example of what analysis could show -->
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-lightbulb"></i> How it works</h5>
+            </div>
+            <div class="card-body">
+                <p>Paste your code and our system will:</p>
+                <ul>
+                    <li>✅ Check for syntax errors</li>
+                    <li>✅ Identify potential bugs</li>
+                    <li>✅ Suggest improvements</li>
+                    <li>✅ Provide optimized solutions</li>
+                </ul>
+                <p class="text-muted"><small>Note: Advanced AI analysis requires API integration</small></p>
             </div>
         </div>
     </div>
