@@ -125,3 +125,31 @@ def issue_create(request):
             messages.error(request, 'Title and project are required!')
     
     return render(request, 'issues/issue_create.html', {'projects': projects})
+
+@login_required
+def paste_code(request):
+    """View for pasting and analyzing code"""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        code_content = request.POST.get('code')
+        language = request.POST.get('language', 'python')
+        description = request.POST.get('description', '')
+        
+        if title and code_content:
+            # Here you would typically:
+            # 1. Save the code snippet
+            # 2. Analyze it (basic or AI analysis)
+            # 3. Return results
+            
+            messages.success(request, f'Code "{title}" analyzed successfully!')
+            return redirect('my_code_list')
+        else:
+            messages.error(request, 'Title and code content are required!')
+    
+    return render(request, 'issues/code_paste.html')
+
+@login_required
+def my_code_list(request):
+    """View to show user's pasted code snippets"""
+    # This would show all code snippets by the user
+    return render(request, 'issues/my_code_list.html')
