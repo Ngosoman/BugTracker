@@ -2,52 +2,163 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-list-task"></i> My Issues</h2>
-    <a href="{% url 'issue_create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> New Issue
+    <h2 class="text-dark"><i class="bi bi-bug"></i> My Issues</h2>
+    <a href="{% url 'issue_create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Report New Issue
     </a>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Project</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Created</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for issue in issues %}
-            <tr>
-                <td><strong>{{ issue.title }}</strong></td>
-                <td>{{ issue.project.name }}</td>
-                <td>
-                    <span class="badge bg-{% if issue.priority == 'High' %}danger{% elif issue.priority == 'Medium' %}warning{% else %}info{% endif %}">
-                        {{ issue.priority }}
-                    </span>
-                </td>
-                <td>
-                    <span class="badge bg-{% if issue.status == 'Open' %}success{% elif issue.status == 'In Progress' %}warning{% else %}secondary{% endif %}">
-                        {{ issue.status }}
-                    </span>
-                </td>
-                <td>{{ issue.created_at|date:"M d, Y" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center">
-                    <div class="alert alert-info">
-                        <h4>No issues yet!</h4>
-                        <p>Create your first issue to start tracking bugs.</p>
-                        <a href="{% url 'issues:issue_create' %}" class="btn btn-primary">Create First Issue</a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-list-task"></i> All Issues</h5>
+    </div>
+    <div class="card-body">
+        {% if issues %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Issue Title</th>
+                        <th>Project</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in issues %}
+                    <tr>
+                        <td>
+                            <strong class="text-dark">{{ issue.title }}</strong>
+                            {% if issue.description %}
+                            <br>
+                            <small class="text-muted">{{ issue.description|truncatewords:5 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ issue.project.name }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if issue.priority == 'High' %}danger{% elif issue.priority == 'Medium' %}warning{% else %}info{% endif %}">
+                                <i class="bi bi-{% if issue.priority == 'High' %}exclamation-triangle{% elif issue.priority == 'Medium' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                                {{ issue.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if issue.status == 'Open' %}success{% elif issue.status == 'In Progress' %}warning{% else %}secondary{% endif %}">
+                                <i class="bi bi-{% if issue.status == 'Open' %}circle{% elif issue.status == 'In Progress' %}arrow-repeat{% else %}check-circle{% endif %}"></i>
+                                {{ issue.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ issue.created_at|date:"M d, Y" }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" title="View Issue">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" title="Edit Issue">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" title="Delete Issue">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination would go here -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <span class="text-muted">Showing {{ issues.count }} issue{{ issues.count|pluralize }}</span>
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Previous</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-check-circle display-4 text-success"></i>
+            <h3 class="text-dark mt-3">No issues found!</h3>
+            <p class="text-muted">Your projects are running smoothly with no reported issues.</p>
+            <div class="mt-4">
+                <a href="{% url 'issue_create' %}" class="btn btn-success me-2">
+                    <i class="bi bi-plus-circle"></i> Report First Issue
+                </a>
+                <a href="{% url 'project_list' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-folder"></i> View Projects
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Stats Section -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ issues.count }}</h5>
+                <p class="card-text">Total Issues</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ issues|filter_status:"Open"|length }}</h5>
+                <p class="card-text">Open Issues</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ issues|filter_status:"In Progress"|length }}</h5>
+                <p class="card-text">In Progress</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-secondary mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ issues|filter_status:"Resolved"|length }}</h5>
+                <p class="card-text">Resolved</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
