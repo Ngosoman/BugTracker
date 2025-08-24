@@ -2,32 +2,48 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-folder"></i> My Projects</h2>
-    <a href="{% url 'issues:project_create' %}" class="btn btn-primary">
+    <h2 class="text-dark"><i class="bi bi-folder"></i> My Projects</h2>
+    <a href="{% url 'project_create' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle"></i> New Project
     </a>
 </div>
 
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
 <div class="row">
     {% for project in projects %}
     <div class="col-md-4 mb-3">
-        <div class="card">
+        <div class="card h-100 shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">{{ project.name }}</h5>
-                <p class="card-text">{{ project.description|truncatewords:20 }}</p>
-                <div class="d-flex justify-content-between">
+                <h5 class="card-title text-primary">{{ project.name }}</h5>
+                <p class="card-text text-muted">
+                    {{ project.description|truncatewords:20|default:"No description" }}
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">Created: {{ project.created_at|date:"M d, Y" }}</small>
-                    <a href="#" class="btn btn-sm btn-outline-primary">View Issues</a>
+                    <span class="badge bg-secondary">0 issues</span>
                 </div>
             </div>
         </div>
     </div>
     {% empty %}
     <div class="col-12">
-        <div class="alert alert-info">
-            <h4>No projects yet!</h4>
-            <p>Create your first project to start tracking issues.</p>
-            <a href="{% url 'issues:project_create' %}" class="btn btn-primary">Create First Project</a>
+        <div class="text-center py-5">
+            <i class="bi bi-folder-x display-1 text-muted"></i>
+            <h3 class="text-dark mt-3">No projects yet!</h3>
+            <p class="text-muted">Create your first project to start tracking issues.</p>
+            <a href="{% url 'project_create' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Create First Project
+            </a>
         </div>
     </div>
     {% endfor %}
