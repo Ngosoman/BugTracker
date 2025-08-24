@@ -93,3 +93,35 @@ def project_create(request):
             messages.error(request, 'Project name is required!')
     
     return render(request, 'issues/project_create.html')
+
+@login_required
+def issue_create(request):
+    """Create a new issue"""
+    projects = Project.objects.filter(created_by=request.user)
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        project_id = request.POST.get('project')
+        priority = request.POST.get('priority', 'Medium')
+        
+        if title and project_id:
+            try:
+                project = Project.objects.get(id=project_id, created_by=request.user)
+                
+                issue = Issue.objects.create(
+                    title=title,
+                    description=description,
+                    project=project,
+                    priority=priority,
+                    created_by=request.user
+                )
+                messages.success(request, f'Issue "{issue.title}" created successfully!')
+                return redirect('issue_list')
+                
+            except Project.DoesNotExist:
+                messages.error(request, 'Invalid project selected!')
+        else:
+            messages.error(request, 'Title and project are required!')
+    
+    return render(request, 'issues/issue_create.html', {'projects': projects})
