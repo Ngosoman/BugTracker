@@ -50,13 +50,11 @@
                         </td>
                         <td>
                             <span class="badge bg-{% if issue.priority == 'High' %}danger{% elif issue.priority == 'Medium' %}warning{% else %}info{% endif %}">
-                                <i class="bi bi-{% if issue.priority == 'High' %}exclamation-triangle{% elif issue.priority == 'Medium' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
                                 {{ issue.priority }}
                             </span>
                         </td>
                         <td>
                             <span class="badge bg-{% if issue.status == 'Open' %}success{% elif issue.status == 'In Progress' %}warning{% else %}secondary{% endif %}">
-                                <i class="bi bi-{% if issue.status == 'Open' %}circle{% elif issue.status == 'In Progress' %}arrow-repeat{% else %}check-circle{% endif %}"></i>
                                 {{ issue.status }}
                             </span>
                         </td>
@@ -82,7 +80,7 @@
             </table>
         </div>
         
-        <!-- Pagination would go here -->
+        <!-- Simple pagination placeholder -->
         <div class="d-flex justify-content-between align-items-center mt-3">
             <div>
                 <span class="text-muted">Showing {{ issues.count }} issue{{ issues.count|pluralize }}</span>
@@ -94,12 +92,6 @@
                     </li>
                     <li class="page-item active">
                         <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">2</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">3</a>
                     </li>
                     <li class="page-item">
                         <a class="page-link" href="#">Next</a>
@@ -126,7 +118,7 @@
     </div>
 </div>
 
-<!-- Quick Stats Section -->
+<!-- Simple stats without custom filters -->
 <div class="row mt-4">
     <div class="col-md-3">
         <div class="card text-white bg-success mb-3">
@@ -139,15 +131,19 @@
     <div class="col-md-3">
         <div class="card text-white bg-warning mb-3">
             <div class="card-body text-center">
-                <h5 class="card-title">{{ issues|filter_status:"Open"|length }}</h5>
-                <p class="card-text">Open Issues</p>
+                <h5 class="card-title">
+                    {% with open_count=issues|length %}
+                        {{ open_count }}
+                    {% endwith %}
+                </h5>
+                <p class="card-text">Showing</p>
             </div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="card text-white bg-info mb-3">
             <div class="card-body text-center">
-                <h5 class="card-title">{{ issues|filter_status:"In Progress"|length }}</h5>
+                <h5 class="card-title">0</h5>
                 <p class="card-text">In Progress</p>
             </div>
         </div>
@@ -155,7 +151,7 @@
     <div class="col-md-3">
         <div class="card text-white bg-secondary mb-3">
             <div class="card-body text-center">
-                <h5 class="card-title">{{ issues|filter_status:"Resolved"|length }}</h5>
+                <h5 class="card-title">0</h5>
                 <p class="card-text">Resolved</p>
             </div>
         </div>
