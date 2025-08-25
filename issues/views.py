@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Project, Issue
 from .utils import analyze_python_code
 from .models import CodeSnippet, CodeIssue
+from .utils.code_analysis import analyze_code
 
 
 @login_required
@@ -140,6 +141,7 @@ def paste_code(request):
         code_content = request.POST.get('code')
         language = request.POST.get('language', 'python')
         description = request.POST.get('description', '')
+        use_ai = request.POST.get('use_ai', False)  # Checkbox for AI analysis
         
         if title and code_content:
             # Save code snippet
@@ -151,27 +153,48 @@ def paste_code(request):
                 created_by=request.user
             )
             
-            # Analyze code based on language
+            # Analyze the code
             if language == 'python':
-                issues_found = analyze_python_code(code_content)
+                # Use basic analysis for now (set use_ai=False for basic)
+                analysis_result = analyze_code(code_content, language, use_ai=False)
                 
-                # Save issues to database
-                for issue_data in issues_found:
-                    CodeIssue.objects.create(
-                        snippet=snippet,
-                        line_number=issue_data['line_number'],
-                        issue_type=issue_data['issue_type'],
-                        description=issue_data['description'],
-                        severity=issue_data['severity'],
-                        suggested_fix=issue_data.get('suggested_fix', '')
-                    )
-                
-                messages.success(request, f'Found {len(issues_found)} issues in your code!')
-            else:
-                messages.info(request, f'Code saved. Language {language} analysis coming soon!')
+                if 'error' in analysis_result:
+                    messages.error(request, analysis_result['error'])
+                else:
+                    # For basic analysis, we get a list of issues
+                    issues_found = analysis_result
+                    
+                    # Save issues to database
+                    for issue_data in issues_found:
+                        CodeIssue.objects.create(
+                            snippet=snippet,
+                            line_number=issue_data['line_number'],
+                            issue_type=issue_data['issue_type'],
+                            description=issue_data['description'],
+                            severity=issue_data['severity'],
+                            suggested_fix=issue_data.get('suggested_fix', '')
+                        )
+                    
+                    messages.success(request, f'Found {len(issues_found)} issues in your code!')
+                    return redirect('code_results', snippet_id=snippet.id)
             
-            return redirect('code_results', snippet_id=snippet.id)
+            else:
+                messages.info(request, f'Code saved. {language} analysis coming soon!')
+                return redirect('dashboard')
+                
         else:
             messages.error(request, 'Title and code content are required!')
     
     return render(request, 'issues/code_paste.html')
+
+@login_required
+def code_results(request, snippet_id):
+    """Show analysis results for a code snippet"""
+    snippet = get_object_or_404(CodeSnippet, id=snippet_id, created_by=request.user)
+    issues = CodeIssue.objects.filter(snippet=snippet)
+    
+    return render(request, 'issues/code_results.html', {
+        'snippet': snippet,
+        'issues': issues,
+        'issues_count': issues.count()
+    })
