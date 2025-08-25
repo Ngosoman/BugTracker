@@ -2,11 +2,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from issues import views as issues_views
-from accounts import views as accounts_views  
+from accounts import views as accounts_views 
+import issues.views as views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
+
+    path('paste-code/', views.paste_code, name='paste_code'), 
+    path('my-code/', views.my_code_list, name='my_code_list'),
+    
     
 
     # Issues URLs
