@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Project, Issue
-from .utils import analyze_python_code
+# from .utils import analyze_python_code
 from .models import CodeSnippet, CodeIssue
-from .utils.code_analysis import analyze_code
+from .utils import analyze_code
 
 
 @login_required
@@ -198,3 +198,42 @@ def code_results(request, snippet_id):
         'issues': issues,
         'issues_count': issues.count()
     })
+
+# ADD THIS AT THE TOP OF views.py
+import re
+
+def analyze_code(code, language='python'):
+    """Basic code analysis function"""
+    if language == 'python':
+        return analyze_python_code_basic(code)
+    return []
+
+def analyze_python_code_basic(code):
+    """Basic Python analysis"""
+    issues = []
+    lines = code.split('\n')
+    
+    for i, line in enumerate(lines, 1):
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+            
+        if 'print ' in line:
+            issues.append({
+                'line_number': i,
+                'issue_type': 'Python 2 Syntax',
+                'description': 'print without parentheses',
+                'severity': 'medium',
+                'suggested_fix': f'Change to: print({line.split("print ")[1]})'
+            })
+            
+        if ' == None' in line or ' != None' in line:
+            issues.append({
+                'line_number': i,
+                'issue_type': 'None Comparison',
+                'description': 'Use "is" instead of "==" for None',
+                'severity': 'low',
+                'suggested_fix': line.replace(' == None', ' is None').replace(' != None', ' is not None')
+            })
+    
+    return issues
