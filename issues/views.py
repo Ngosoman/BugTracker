@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Project, Issue
 
+
 @login_required
 def dashboard(request):
     """Dashboard view - shows overview"""
@@ -126,6 +127,8 @@ def issue_create(request):
     
     return render(request, 'issues/issue_create.html', {'projects': projects})
 
+
+
 @login_required
 def paste_code(request):
     """View for pasting and analyzing code"""
@@ -136,13 +139,9 @@ def paste_code(request):
         description = request.POST.get('description', '')
         
         if title and code_content:
-            # Here you would typically:
-            # 1. Save the code snippet
-            # 2. Analyze it (basic or AI analysis)
-            # 3. Return results
-            
-            messages.success(request, f'Code "{title}" analyzed successfully!')
-            return redirect('my_code_list')
+            # Show a Success Message
+            messages.success(request, f'Code "{title}" submitted for analysis!')
+            return redirect('dashboard')  
         else:
             messages.error(request, 'Title and code content are required!')
     
@@ -151,5 +150,5 @@ def paste_code(request):
 @login_required
 def my_code_list(request):
     """View to show user's pasted code snippets"""
-    # This would show all code snippets by the user
+    # This would show all code by the user
     return render(request, 'issues/my_code_list.html')
