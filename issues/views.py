@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Project, Issue
+from .utils import analyze_python_code
+from .models import CodeSnippet, CodeIssue
 
 
 @login_required
@@ -129,6 +131,7 @@ def issue_create(request):
 
 
 
+
 @login_required
 def paste_code(request):
     """View for pasting and analyzing code"""
@@ -139,16 +142,36 @@ def paste_code(request):
         description = request.POST.get('description', '')
         
         if title and code_content:
-            # Show a Success Message
-            messages.success(request, f'Code "{title}" submitted for analysis!')
-            return redirect('dashboard')  
+            # Save code snippet
+            snippet = CodeSnippet.objects.create(
+                title=title,
+                code=code_content,
+                language=language,
+                description=description,
+                created_by=request.user
+            )
+            
+            # Analyze code based on language
+            if language == 'python':
+                issues_found = analyze_python_code(code_content)
+                
+                # Save issues to database
+                for issue_data in issues_found:
+                    CodeIssue.objects.create(
+                        snippet=snippet,
+                        line_number=issue_data['line_number'],
+                        issue_type=issue_data['issue_type'],
+                        description=issue_data['description'],
+                        severity=issue_data['severity'],
+                        suggested_fix=issue_data.get('suggested_fix', '')
+                    )
+                
+                messages.success(request, f'Found {len(issues_found)} issues in your code!')
+            else:
+                messages.info(request, f'Code saved. Language {language} analysis coming soon!')
+            
+            return redirect('code_results', snippet_id=snippet.id)
         else:
             messages.error(request, 'Title and code content are required!')
     
     return render(request, 'issues/code_paste.html')
-
-@login_required
-def my_code_list(request):
-    """View to show user's pasted code snippets"""
-    # This would show all code by the user
-    return render(request, 'issues/my_code_list.html')
