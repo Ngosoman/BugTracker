@@ -51,7 +51,7 @@ class Comment(models.Model):
         return f"Comment by {self.user.username} on {self.issue.title}"
     
 
-# issues/models.py - ADD THESE MODELS
+
 
 class CodeSnippet(models.Model):
     LANGUAGES = [
