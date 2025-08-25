@@ -4,6 +4,10 @@ from django.views.generic import TemplateView
 from issues import views as issues_views
 from accounts import views as accounts_views 
 import issues.views as views
+import issues.views as issues_views
+import accounts.views as accounts_views
+from issues import views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

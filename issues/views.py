@@ -141,7 +141,7 @@ def paste_code(request):
         code_content = request.POST.get('code')
         language = request.POST.get('language', 'python')
         description = request.POST.get('description', '')
-        use_ai = request.POST.get('use_ai', False)  # Checkbox for AI analysis
+        use_ai = request.POST.get('use_ai', False)  
         
         if title and code_content:
             # Save code snippet
@@ -199,7 +199,7 @@ def code_results(request, snippet_id):
         'issues_count': issues.count()
     })
 
-# ADD THIS AT THE TOP OF views.py
+
 import re
 
 def analyze_code(code, language='python'):
@@ -237,3 +237,10 @@ def analyze_python_code_basic(code):
             })
     
     return issues
+
+@login_required
+def my_code_list(request):
+    """List all code snippets for current user"""
+    snippets = CodeSnippet.objects.filter(created_by=request.user).order_by('-created_at')
+    return render(request, 'issues/my_code_list.html', {'snippets': snippets})  
+        
