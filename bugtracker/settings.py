@@ -136,3 +136,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'home'
+
+# OpenAI API Key (For AI Analysis)
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', 'your-api-key-here')
