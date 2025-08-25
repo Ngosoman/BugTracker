@@ -90,3 +90,42 @@ class CodeIssue(models.Model):
     
     def __str__(self):
         return f"{self.issue_type} - Line {self.line_number}"
+
+class CodeSnippet(models.Model):
+    LANGUAGES = [
+        ('python', 'Python'),
+        ('javascript', 'JavaScript'),
+        ('java', 'Java'),
+        ('cpp', 'C++'),
+        ('html', 'HTML/CSS'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    code = models.TextField()
+    language = models.CharField(max_length=20, choices=LANGUAGES, default='python')
+    description = models.TextField(blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    analyzed = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.title
+
+class CodeIssue(models.Model):
+    SEVERITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
+    snippet = models.ForeignKey(CodeSnippet, on_delete=models.CASCADE)
+    line_number = models.IntegerField()
+    issue_type = models.CharField(max_length=100)
+    description = models.TextField()
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='medium')
+    suggested_fix = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.issue_type} - Line {self.line_number}"
