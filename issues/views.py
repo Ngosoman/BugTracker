@@ -135,57 +135,38 @@ def issue_create(request):
 
 @login_required
 def paste_code(request):
-    """View for pasting and analyzing code"""
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        code_content = request.POST.get('code')
-        language = request.POST.get('language', 'python')
-        description = request.POST.get('description', '')
-        use_ai = request.POST.get('use_ai', False)  
-        
-        if title and code_content:
-            # Save code snippet
-            snippet = CodeSnippet.objects.create(
-                title=title,
-                code=code_content,
-                language=language,
-                description=description,
-                created_by=request.user
-            )
+    """View for pasting and analyzing code - FIXED"""
+    try:
+        if request.method == 'POST':
+            title = request.POST.get('title')
+            code_content = request.POST.get('code')
+            language = request.POST.get('language', 'python')
             
-            # Analyze the code
-            if language == 'python':
-                # Use basic analysis for now (set use_ai=False for basic)
-                analysis_result = analyze_code(code_content, language, use_ai=False)
-                
-                if 'error' in analysis_result:
-                    messages.error(request, analysis_result['error'])
+            if title and code_content:
+                # Basic analysis
+                if language == 'python':
+                    issues_found = analyze_python_code_basic(code_content)
+                    messages.success(request, f'Found {len(issues_found)} issues in your Python code!')
+                    
+                    # SHOW RESULTS ON SAME PAGE (instead of redirect)
+                    return render(request, 'issues/code_paste.html', {
+                        'analysis_results': issues_found,
+                        'code_content': code_content,
+                        'title': title,
+                        'language': language
+                    })
                 else:
-                    # For basic analysis, we get a list of issues
-                    issues_found = analysis_result
-                    
-                    # Save issues to database
-                    for issue_data in issues_found:
-                        CodeIssue.objects.create(
-                            snippet=snippet,
-                            line_number=issue_data['line_number'],
-                            issue_type=issue_data['issue_type'],
-                            description=issue_data['description'],
-                            severity=issue_data['severity'],
-                            suggested_fix=issue_data.get('suggested_fix', '')
-                        )
-                    
-                    messages.success(request, f'Found {len(issues_found)} issues in your code!')
-                    return redirect('code_results', snippet_id=snippet.id)
-            
+                    messages.info(request, f'Code submitted! {language} analysis coming soon.')
+                    return redirect('dashboard')
             else:
-                messages.info(request, f'Code saved. {language} analysis coming soon!')
-                return redirect('dashboard')
-                
-        else:
-            messages.error(request, 'Title and code content are required!')
+                messages.error(request, 'Title and code content are required!')
+        
+        return render(request, 'issues/code_paste.html')
     
-    return render(request, 'issues/code_paste.html')
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        messages.error(request, f'An error occurred: {str(e)}')
+        return render(request, 'issues/code_paste.html')
 
 @login_required
 def code_results(request, snippet_id):
@@ -243,7 +224,3 @@ def my_code_list(request):
     """List all code snippets for current user"""
     snippets = CodeSnippet.objects.filter(created_by=request.user).order_by('-created_at')
     return render(request, 'issues/my_code_list.html', {'snippets': snippets})
-
-    use_ai = request.POST.get('use_ai', True)
-
-        

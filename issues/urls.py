@@ -9,6 +9,7 @@ urlpatterns = [
     # Code Paste URLs
     path('paste-code/', views.paste_code, name='paste_code'), 
     path('my-code/', views.my_code_list, name='my_code_list'),
+    path('code/<int:snippet_id>/', views.code_results, name='code_results'),
     
     
     path('projects/', views.project_list, name='project_list'),
