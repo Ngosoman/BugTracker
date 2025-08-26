@@ -190,7 +190,7 @@ def analyze_code(code, language='python'):
     return []
 
 def analyze_python_code_basic(code):
-    """Basic Python analysis"""
+    """Enhanced Python code analysis"""
     issues = []
     lines = code.split('\n')
     
@@ -199,23 +199,53 @@ def analyze_python_code_basic(code):
         if not line or line.startswith('#'):
             continue
             
-        if 'print ' in line:
-            issues.append({
-                'line_number': i,
-                'issue_type': 'Python 2 Syntax',
-                'description': 'print without parentheses',
+        # Check for multiple issues per line
+        checks = [
+            # Python 2 print syntax
+            {
+                'pattern': r'print\s+[^\(]',
+                'type': 'Python 2 Syntax',
+                'description': 'print statement without parentheses (Python 2 style)',
                 'severity': 'medium',
-                'suggested_fix': f'Change to: print({line.split("print ")[1]})'
-            })
-            
-        if ' == None' in line or ' != None' in line:
-            issues.append({
-                'line_number': i,
-                'issue_type': 'None Comparison',
-                'description': 'Use "is" instead of "==" for None',
+                'fix': lambda l: re.sub(r'print\s+([^\(].*)', r'print(\1)', l)
+            },
+            # None comparison
+            {
+                'pattern': r'==\s*None|\!=\s*None',
+                'type': 'None Comparison',
+                'description': 'Use "is" or "is not" for None comparisons (PEP 8)',
                 'severity': 'low',
-                'suggested_fix': line.replace(' == None', ' is None').replace(' != None', ' is not None')
-            })
+                'fix': lambda l: l.replace(' == None', ' is None').replace(' != None', ' is not None')
+            },
+            # Bare except
+            {
+                'pattern': r'^\s*except:',
+                'type': 'Bare Except Clause',
+                'description': 'Bare except clause - specify exception type',
+                'severity': 'medium',
+                'fix': lambda l: l.replace('except:', 'except Exception:')
+            },
+            # Old style class
+            {
+                'pattern': r'^class\s+\w+[^\(]:',
+                'type': 'Old-style Class',
+                'description': 'Use new-style classes (inherit from object)',
+                'severity': 'low',
+                'fix': lambda l: l.replace(':', '(object):')
+            }
+        ]
+        
+        for check in checks:
+            if re.search(check['pattern'], line):
+                issues.append({
+                    'line_number': i,
+                    'issue_type': check['type'],
+                    'description': check['description'],
+                    'severity': check['severity'],
+                    'suggested_fix': check['fix'](line),
+                    'original_line': line
+                })
+                break  
     
     return issues
 
