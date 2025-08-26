@@ -3,6 +3,17 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
+        <!-- Messages Display -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <div class="card shadow">
             <div class="card-header bg-info text-white">
                 <h3 class="mb-0">
@@ -16,17 +27,17 @@
                     <div class="mb-3">
                         <label for="title" class="form-label">Code Title *</label>
                         <input type="text" class="form-control" id="title" name="title" 
-                               placeholder="e.g., Python Calculator Function" required>
+                               value="{{ title|default:'' }}" placeholder="e.g., Python Calculator Function" required>
                     </div>
                     
                     <div class="mb-3">
                         <label for="language" class="form-label">Programming Language</label>
                         <select class="form-select" id="language" name="language">
-                            <option value="python">Python</option>
-                            <option value="javascript">JavaScript</option>
-                            <option value="java">Java</option>
-                            <option value="cpp">C++</option>
-                            <option value="html">HTML/CSS</option>
+                            <option value="python" {% if language == 'python' %}selected{% endif %}>Python</option>
+                            <option value="javascript" {% if language == 'javascript' %}selected{% endif %}>JavaScript</option>
+                            <option value="java" {% if language == 'java' %}selected{% endif %}>Java</option>
+                            <option value="cpp" {% if language == 'cpp' %}selected{% endif %}>C++</option>
+                            <option value="html" {% if language == 'html' %}selected{% endif %}>HTML/CSS</option>
                         </select>
                     </div>
                     
@@ -34,13 +45,13 @@
                         <label for="code" class="form-label">Your Code *</label>
                         <textarea class="form-control" id="code" name="code" 
                                   rows="15" placeholder="Paste your code here..." 
-                                  style="font-family: 'Courier New', monospace;" required></textarea>
+                                  style="font-family: 'Courier New', monospace;" required>{{ code_content|default:'' }}</textarea>
                     </div>
                     
                     <div class="mb-3">
                         <label for="description" class="form-label">Description (Optional)</label>
                         <textarea class="form-control" id="description" name="description" 
-                                  rows="3" placeholder="What does this code do? Any specific issues?"></textarea>
+                                  rows="3" placeholder="What does this code do? Any specific issues?">{{ description|default:'' }}</textarea>
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -54,23 +65,183 @@
                 </form>
             </div>
         </div>
-        
-        <!-- Example of what analysis could show -->
-        <div class="card mt-4">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-lightbulb"></i> How it works</h5>
+
+        <!-- ANALYSIS RESULTS SECTION -->
+        {% if analysis_results %}
+        <div class="card mt-4 border-warning">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-bug"></i> Analysis Results
+                    <span class="badge bg-danger float-end">{{ analysis_results|length }} issue(s) found</span>
+                </h5>
             </div>
             <div class="card-body">
-                <p>Paste your code and our system will:</p>
-                <ul>
-                    <li> Check for syntax errors</li>
-                    <li> Identify potential bugs</li>
-                    <li> Suggest improvements</li>
-                    <li> Provide optimized solutions</li>
-                </ul>
-                <p class="text-muted"><small>Note: Advanced AI analysis requires API integration</small></p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Found {{ analysis_results|length }} issue(s) in your code:</strong>
+                </div>
+
+                {% for issue in analysis_results %}
+                <div class="card mb-3 border-{% if issue.severity == 'high' %}danger{% elif issue.severity == 'medium' %}warning{% else %}info{% endif %}">
+                    <div class="card-header bg-{% if issue.severity == 'high' %}danger{% elif issue.severity == 'medium' %}warning{% else %}info{% endif %} text-white py-2">
+                        <h6 class="mb-0">
+                            <i class="bi bi-{% if issue.severity == 'high' %}exclamation-triangle{% elif issue.severity == 'medium' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            Line {{ issue.line_number }}: {{ issue.issue_type }}
+                            <span class="badge bg-light text-dark float-end">
+                                {{ issue.severity|upper }}
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ issue.description }}</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Problematic code:</strong><br>
+                                    <code class="bg-light p-2 rounded d-block mt-1">
+                                        {{ issue.original_line }}
+                                    </code>
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-success">
+                                    <strong>Suggested fix:</strong><br>
+                                    <code class="bg-light p-2 rounded d-block mt-1">
+                                        {{ issue.suggested_fix }}
+                                    </code>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% elif code_content and not analysis_results %}
+        <!-- NO ISSUES FOUND -->
+        <div class="card mt-4 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-check-circle"></i> Analysis Complete
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-4">
+                    <i class="bi bi-emoji-smile display-4 text-success"></i>
+                    <h4 class="text-success mt-3">No issues found!</h4>
+                    <p class="text-muted">Your code looks clean and follows best practices.</p>
+                    <div class="mt-3">
+                        <span class="badge bg-success">✓ Python Syntax</span>
+                        <span class="badge bg-success">✓ Code Style</span>
+                        <span class="badge bg-success">✓ Best Practices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- HOW IT WORKS SECTION -->
+        <div class="card mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-lightbulb"></i> How It Works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-search text-primary"></i> What we check:</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="bi bi-check-circle text-success"></i>
+                                Syntax Issues
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-check-circle text-success"></i>
+                                None comparison patterns
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-check-circle text-success"></i>
+                                Exception handling
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-check-circle text-success"></i>
+                                Code style violations
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-graph-up text-info"></i> Benefits:</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="bi bi-shield-check text-primary"></i>
+                                Catch bugs early
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-lightning text-warning"></i>
+                                Improve code quality
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-book text-info"></i>
+                                Learn best practices
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-robot text-success"></i>
+                                AI-powered analysis (coming soon)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6 class="text-center"><i class="bi bi-info-circle"></i> Currently Analyzing:</h6>
+                    <div class="text-center">
+                        <span class="badge bg-primary">Python</span>
+                        <span class="badge bg-secondary">JavaScript (soon)</span>
+                        <span class="badge bg-secondary">Java (soon)</span>
+                        <span class="badge bg-secondary">C++ (soon)</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Simple Code Editor Enhancement -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codeTextarea = document.getElementById('code');
+    const languageSelect = document.getElementById('language');
+    
+    // Update placeholder based on language selection
+    languageSelect.addEventListener('change', function() {
+        const lang = this.value;
+        let examples = {
+            'python': 'def hello_world():\n    print("Hello, World!")\n\n# Try: print "Hello" for Python 2 detection',
+            'javascript': 'function helloWorld() {\n    console.log("Hello, World!");\n}',
+            'java': 'public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
+            'cpp': '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}',
+            'html': '<!DOCTYPE html>\n<html>\n<head>\n    <title>Hello World</title>\n</head>\n<body>\n    <h1>Hello, World!</h1>\n</body>\n</html>'
+        };
+        
+        codeTextarea.placeholder = `Paste your ${lang} code here...\n\nExample:\n${examples[lang]}`;
+    });
+});
+</script>
+
+<style>
+.code-example {
+    font-family: 'Courier New', monospace;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #0d6efd;
+}
+.issue-card {
+    transition: transform 0.2s;
+}
+.issue-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
 {% endblock %}
