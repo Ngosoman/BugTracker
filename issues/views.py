@@ -242,5 +242,8 @@ def analyze_python_code_basic(code):
 def my_code_list(request):
     """List all code snippets for current user"""
     snippets = CodeSnippet.objects.filter(created_by=request.user).order_by('-created_at')
-    return render(request, 'issues/my_code_list.html', {'snippets': snippets})  
+    return render(request, 'issues/my_code_list.html', {'snippets': snippets})
+
+    use_ai = request.POST.get('use_ai', True)
+
         
